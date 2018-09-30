@@ -82,7 +82,6 @@ const EMField = EmberObject.extend({
           }
           if (message) {
             fieldValid = false;
-            console.log(this.errors);
             A(this.get('errors')).pushObject({
               validator,
               message
