@@ -1,0 +1,25 @@
+{{#emvalid-input-wrapper label=label field=field as |id|}}
+  {{yield id}}
+
+  {{#if (eq field.type "textarea")}}
+    {{textarea
+      id=id
+      type=field.type
+      name=field.name
+      value=field.value
+      class=field.class
+      change=(action "validateField" field "change")
+      key-up=(action "validateField" field "key-up")
+    }}
+  {{else}}
+    {{input
+      id=id
+      type=field.type
+      name=field.name
+      value=field.value
+      class=field.class
+      change=(action "validateField" field "change")
+      key-up=(action "validateField" field "key-up")
+    }}
+  {{/if}}
+{{/emvalid-input-wrapper}}

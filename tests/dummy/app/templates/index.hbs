@@ -1,0 +1,9 @@
+<p>Form Valid: {{model.form.valid}}</p>
+
+{{#each model.form.fields as |field|}}
+  {{emvalid-textbox field=field}}
+{{/each}}
+
+<hr>
+
+<button {{action "validateForm" model.form}}>Submit</button>

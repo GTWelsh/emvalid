@@ -1,0 +1,11 @@
+{{#if label}}
+  <label for={{concat elementId "_input"}}>{{label}}</label>
+{{else}}
+  {{#if field.label}}
+    <label for={{concat elementId "_input"}}>{{field.label}}</label>
+  {{/if}}
+{{/if}}
+
+{{yield (concat elementId "_input")}}
+
+{{emvalid-errors field=field}}
