@@ -1,6 +1,6 @@
 {
   "name": "emvalid",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Validation for EmberJS",
   "keywords": [
     "ember-addon"
