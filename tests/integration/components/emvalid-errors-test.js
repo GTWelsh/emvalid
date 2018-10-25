@@ -13,14 +13,5 @@ module('Integration | Component | emvalid-errors', function(hooks) {
     await render(hbs`{{emvalid-errors}}`);
 
     assert.equal(this.element.textContent.trim(), '');
-
-    // Template block usage:
-    await render(hbs`
-      {{#emvalid-errors}}
-        template block text
-      {{/emvalid-errors}}
-    `);
-
-    assert.equal(this.element.textContent.trim(), 'template block text');
   });
 });
