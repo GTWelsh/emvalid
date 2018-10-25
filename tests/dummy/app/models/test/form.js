@@ -1,5 +1,15 @@
 import { NumericValidator, RequiredValidator, MaxLengthValidator, MinLengthValidator } from 'emvalid/validators/emvalid';
 import { EMField, EMForm } from 'emvalid/models/emvalid';
+import EmberObject from "@ember/object";
+
+const asyncValidator = EmberObject.extend({
+  valid: true,
+  validate() {
+    setTimeout(() => {
+      this.set('valid', false);
+    }, 5000);
+  }
+});
 
 const nameField = EMField.create({
   value: '',
@@ -7,6 +17,10 @@ const nameField = EMField.create({
   type: 'text',
   class: 'test-class',
   validators: [
+    asyncValidator.create({
+      triggers: ['change'],
+      message: 'Async check failed'
+    }),
     RequiredValidator.create({
       triggers: ['change'],
       message: 'Please enter a name'

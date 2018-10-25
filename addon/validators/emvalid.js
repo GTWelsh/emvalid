@@ -1,58 +1,54 @@
 import EmberObject from "@ember/object";
 
 const MaxLengthValidator = EmberObject.extend({
+  valid: true,
   validate(input) {
     if (!this.maxLength) {
-      return null;
+      this.set('valid', true);
+      return;
     }
 
     const valid = !input || input.length <= this.maxLength;
 
-    if (!valid) {
-      return this.getWithDefault('message', `This input must be ${this.maxLength} characters or less.`);
-    }
-
-    return null;
+    this.set('valid', valid);
   }
 });
 
 const MinLengthValidator = EmberObject.extend({
+  valid: true,
   validate(input) {
     if (!this.minLength) {
-      return null;
+      this.set('valid', true);
+      return;
     }
 
     const valid = !input || input.length >= this.minLength;
 
-    if (!valid) {
-      return this.getWithDefault('message', `This input must be ${this.minLength} characters or more.`);
-    }
-
-    return null;
+    this.set('valid', valid);
   }
 });
 
 const RegexValidator = EmberObject.extend({
+  valid: true,
   validate(input) {
     if (!this.pattern) {
-      return null;
+      this.set('valid', true);
+      return;
     }
 
     if (this.allowEmpty && !input) {
-      return null;
+      this.set('valid', true);
+      return;
     }
 
-    const valid = input.search(this.pattern) !== -1;
+    let valid = input.search(this.pattern) !== -1;
 
-    if (!valid) {
-      return this.getWithDefault('message', `Input invalid.`);
-    }
-
-    return null;
+    this.set('valid', valid);
   }
 });
 
 const NumericValidator = RegexValidator.extend({
+  valid: true,
   init() {
     this._super(...arguments);
 
@@ -62,14 +58,11 @@ const NumericValidator = RegexValidator.extend({
 });
 
 const RequiredValidator = EmberObject.extend({
+  valid: true,
   validate(input) {
     const valid = !!input;
 
-    if (!valid) {
-      return this.getWithDefault('message', `This input is required.`);
-    }
-
-    return null;
+    this.set('valid', valid);
   }
 });
 

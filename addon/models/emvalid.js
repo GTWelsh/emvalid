@@ -1,41 +1,26 @@
-import EmberObject, { observer, computed } from "@ember/object";
+import EmberObject, { computed } from "@ember/object";
 import { camelize } from '@ember/string';
-import { A } from '@ember/array';
 
 const EMForm = EmberObject.extend({
-  init() {
-    this._super(...arguments);
-
-    this.setProperties({
-      valid: true
-    });
-  },
+  fields: null,
+  valid: computed('fields.@each.valid', function() {
+    const fields = this.get('fields');
+    if (!fields) return true;
+    const valid = fields.every(x => !!x.get('valid'));
+    return valid;
+  }),
   validate() {
     if (this.get('valid') === undefined) {
       throw 'You must use this._super(...arguments) in "init()" when making Forms';
     }
 
-    let valid = true;
     for (let index = 0; index < this.fields.length; index++) {
       const field = this.fields[index];
-      const fieldValid = field.validate('form');
-      if (!fieldValid) {
-        valid = false;
-      }
+      field.validate('form');
     }
-
-    return valid;
   },
-  watchForFieldChanges: observer('fields.@each.valid', function () {
-    const fields = this.get('fields');
-    if (!fields) {
-      return;
-    }
-
-    this.set('valid', fields.every(x => x.valid));
-  }),
-  errors: computed('fields.@each.errorsComputed', function () {
-    return [].concat.apply([], this.fields.map(x => x.errors));
+  errors: computed('fields.@each.errors', function () {
+    return [].concat.apply([], this.fields.map(x => x.get('errors')));
   }),
   values: computed('fields.@each.value', function() {
     return this.get('fields').map(x => {
@@ -48,25 +33,38 @@ const EMForm = EmberObject.extend({
 });
 
 const EMField = EmberObject.extend({
-  type: 'text',
-  value: '',
+  type: null,
+  value: null,
+  validators: null,
 
   init() {
     this._super(...arguments);
 
-    this.setProperties({
-      errors: [],
-      valid: true
-    });
+    let type = this.get('type');
+    if (!type) {
+      this.set('type', 'text');
+    }
+
+    let value = this.get('value');
+    if (!value) {
+      this.set('value', '');
+    }
   },
-  errorsComputed: computed('errors.[]', function () {
-    return this.get('errors');
+  errors: computed('validators.@each.{valid,message}', function () {
+    const validators = this.get('validators');
+
+    if (!validators) return [];
+
+    return validators.filter(x => !x.get('valid')).map(x => x.message);
+  }),
+  valid: computed('validators.@each.valid', function() {
+    const validators = this.get('validators');
+    if (!validators) return true;
+    const valid = validators.every(x => !!x.get('valid'));
+    return valid;
   }),
   validate(trigger) {
     const validators = this.get('validators');
-
-    let fieldValid = true;
-    let validatorRan = false;
 
     if (validators && validators.length) {
       for (let index = 0; index < validators.length; index++) {
@@ -74,31 +72,10 @@ const EMField = EmberObject.extend({
 
         // always allow form triggered validation (usually on-submit)
         if (validator.triggers.includes(trigger) || trigger === 'form') {
-          validatorRan = true;
-          const message = validator.validate(this.value);
-          const indexOfErrors = this.errors.map(x => x.validator).indexOf(validator);
-          if (indexOfErrors !== -1) {
-            this.errors.removeAt(indexOfErrors);
-          }
-          if (message) {
-            fieldValid = false;
-            A(this.get('errors')).pushObject({
-              validator,
-              message
-            });
-          }
+          validator.validate(this.value);
         }
       }
     }
-
-    // if validator ran, we can trust the result
-    if (validatorRan) {
-      this.set('valid', fieldValid);
-      return fieldValid;
-    }
-
-    // if no validator ran, return current status
-    return this.valid;
   }
 });
 
